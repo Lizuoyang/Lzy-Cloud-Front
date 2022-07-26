@@ -1,6 +1,8 @@
-import { login, logout, getInfo } from '@/api/user'
+import { login, logout, getInfo} from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
+import {serialize} from '@/utils/util'
 import { resetRouter } from '@/router'
+
 
 const getDefaultState = () => {
   return {
@@ -30,9 +32,9 @@ const mutations = {
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    const { username, password } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
+      login(serialize(userInfo)).then(response => {
+        console.log(response)
         const { data } = response
         commit('SET_TOKEN', data.token)
         setToken(data.token)
