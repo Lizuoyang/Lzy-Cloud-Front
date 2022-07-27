@@ -41,7 +41,7 @@
         </span>
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
+      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="captchaVerify">登录</el-button>
 
       <div class="tips">
         <span style="margin-right:20px;">username: admin</span>
@@ -49,12 +49,21 @@
       </div>
 
     </el-form>
+
+    <Verify
+      ref="verify"
+      :mode="'pop'"
+      :captcha-type="'blockPuzzle'"
+      :img-size="{ width: '330px', height: '155px' }"
+      @success="verifySuccess"
+    />
   </div>
 </template>
 
 <script>
 import { validUsername } from '@/utils/validate'
 import {} from '@/api/login'
+import Verify from '@/components/Verifition'
 export default {
   name: 'Login',
   data() {
@@ -84,9 +93,11 @@ export default {
       loading: false,
       passwordType: 'password',
       redirect: undefined,
-      grantType: 'password'
+      grantType: 'password',
+      loginCaptchaType: 'sliding',
     }
   },
+  components: {Verify},
   watch: {
     $route: {
       handler: function(route) {
@@ -96,6 +107,25 @@ export default {
     }
   },
   methods: {
+    verifySuccess(params) {
+      console.log(params)
+    },
+    captchaVerify(e) {
+      e.preventDefault()
+      this.$refs.loginForm.validate((valid) => {
+        if (valid) {
+          if (this.loginCaptchaType === 'sliding') {
+            this.$refs.verify.show()
+          } else {
+            this.verifySuccess()
+          }
+        } else {
+          setTimeout(() => {
+            this.loading = false
+          }, 600)
+        }
+      })
+    },
     showPwd() {
       if (this.passwordType === 'password') {
         this.passwordType = ''
