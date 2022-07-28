@@ -5,11 +5,11 @@ const userApi = {
   // 登录并生成token
   Login: '/lzy-oauth/oauth/token',
   // 退出登录
-  Logout: '/lzy-oauth/logout',
+  Logout: '/lzy-oauth/oauth/logout',
   // 获取验证码类型
-  CaptchaType: '/lzy-oauth/captcha/type',
+  CaptchaType: '/lzy-oauth/oauth/captcha/type',
   // 生成图片验证
-  ImageCaptcha: '/lzy-oauth/captcha/image',
+  ImageCaptcha: '/lzy-oauth/oauth/captcha/image',
   // 获取用户信息
   UserInfo: '/lzy-system/account/user/info'
 }

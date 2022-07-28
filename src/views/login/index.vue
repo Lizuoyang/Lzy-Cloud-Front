@@ -41,6 +41,32 @@
         </span>
       </el-form-item>
 
+      <el-row :gutter="5" v-if="loginCaptchaType === 'image'">
+        <el-col :span="17">
+          <el-form-item prop="captchaCode">
+            <span class="svg-container">
+              <svg-icon icon-class="captcha-code" />
+            </span>
+            <el-input
+              v-model="loginForm.captchaCode"
+              placeholder="验证码"
+              name="captchaCode"
+              type="text"
+              tabindex="3"
+              auto-complete="on"
+              @keyup.enter.native="handleLogin"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :span="7">
+          <img
+            :src="captchaImage"
+            class="v-code-img"
+            @click="refreshImageCode"
+          >
+        </el-col>
+      </el-row>
+
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="captchaVerify">登录</el-button>
 
       <div class="tips">
@@ -49,7 +75,6 @@
       </div>
 
     </el-form>
-
     <Verify
       ref="verify"
       :mode="'pop'"
@@ -64,19 +89,27 @@
 import { validUsername } from '@/utils/validate'
 import {} from '@/api/login'
 import Verify from '@/components/Verifition'
+import {getCaptchaType, getImageCaptcha} from '@/api/login'
 export default {
   name: 'Login',
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!validUsername(value)) {
-        callback(new Error('请输入用户名'))
+        callback(new Error('请输入账号'))
       } else {
         callback()
       }
     }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
-        callback(new Error('密码不能少于6位'))
+        callback(new Error('请输入不小于6位的密码'))
+      } else {
+        callback()
+      }
+    }
+    const validateVCode = (rule, value, callback) => {
+      if (value.length < 5) {
+        callback(new Error('请输入图片验证码'))
       } else {
         callback()
       }
@@ -89,7 +122,8 @@ export default {
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        password: [{ required: true, trigger: 'blur', validator: validatePassword }],
+        captchaCode: [{ required: true, trigger: 'blur', validator: validateVCode }],
       },
       loading: false,
       passwordType: 'password',
@@ -101,6 +135,10 @@ export default {
     }
   },
   components: {Verify},
+  created() {
+    this.queryCaptchaType()
+    // window.addEventListener('storage', this.afterQRScan)
+  },
   watch: {
     $route: {
       handler: function(route) {
@@ -109,13 +147,35 @@ export default {
       immediate: true
     }
   },
+  mounted() {
+    if (this.loginForm.username === '') {
+      this.$refs.username.focus()
+    } else if (this.loginForm.password === '') {
+      this.$refs.password.focus()
+    }
+  },
   methods: {
+    queryCaptchaType(){
+      getCaptchaType().then(res => {
+        this.loginCaptchaType = res.data
+        if (this.loginCaptchaType === 'image') {
+          this.refreshImageCode()
+        }
+      })
+    },
+    refreshImageCode() {
+      getImageCaptcha().then(res => {
+        const data = res.data
+        this.captchaKey = data.captchaKey
+        this.captchaImage = data.captchaImage
+      })
+    },
     verifySuccess(params) {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          // this.loginForm.grant_type = 'captcha'
-          this.loginForm.grant_type = this.grantType
+          this.loginForm.grant_type = 'captcha'
+          // this.loginForm.grant_type = this.grantType
           this.loginForm.client_id = process.env.VUE_APP_CLIENT_ID
           this.loginForm.client_secret = process.env.VUE_APP_CLIENT_SECRET
 
@@ -123,11 +183,12 @@ export default {
           if (this.loginCaptchaType === 'image') {
             this.loginForm.captcha_type = 'image'
             this.loginForm.captcha_key = this.captchaKey
+            this.loginForm.captcha_code = this.loginForm.captchaCode
           } else {
             delete this.loginForm.captchaCode
             this.loginForm.captcha_verification = params.captchaVerification
           }
-
+          console.log("params: ", this.loginForm)
           this.$store
             .dispatch('user/loginByPassword', this.loginForm)
             .then(() => {
@@ -301,6 +362,17 @@ $light_gray:#eee;
     color: $dark_gray;
     cursor: pointer;
     user-select: none;
+  }
+
+  .v-code-img {
+    margin-top: 0.5px;
+    height: 51px;
+    float: right;
+    width: 98%;
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: 0.8;
+    filter: alpha(opacity=60);
   }
 }
 </style>
