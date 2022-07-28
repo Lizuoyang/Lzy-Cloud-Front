@@ -34,7 +34,7 @@
           name="password"
           tabindex="2"
           auto-complete="on"
-          @keyup.enter.native="handleLogin"
+          @keyup.enter.native="captchaVerify"
         />
         <span class="show-pwd" @click="showPwd">
           <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
@@ -85,6 +85,7 @@ export default {
       loginForm: {
         username: 'admin',
         password: '123456',
+        captchaCode: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -95,6 +96,8 @@ export default {
       redirect: undefined,
       grantType: 'password',
       loginCaptchaType: 'sliding',
+      captchaKey: '',
+      captchaImage: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAEALAAAAAABAAEAAAICRAEAOw=='
     }
   },
   components: {Verify},
@@ -108,7 +111,39 @@ export default {
   },
   methods: {
     verifySuccess(params) {
-      console.log(params)
+      this.$refs.loginForm.validate(valid => {
+        if (valid) {
+          this.loading = true
+          // this.loginForm.grant_type = 'captcha'
+          this.loginForm.grant_type = this.grantType
+          this.loginForm.client_id = process.env.VUE_APP_CLIENT_ID
+          this.loginForm.client_secret = process.env.VUE_APP_CLIENT_SECRET
+
+          // 判断是图片验证码还是滑动验证码
+          if (this.loginCaptchaType === 'image') {
+            this.loginForm.captcha_type = 'image'
+            this.loginForm.captcha_key = this.captchaKey
+          } else {
+            delete this.loginForm.captchaCode
+            this.loginForm.captcha_verification = params.captchaVerification
+          }
+
+          this.$store
+            .dispatch('user/loginByPassword', this.loginForm)
+            .then(() => {
+              this.loading = false
+              this.$router.push({ path: this.redirect || '/' })
+            })
+            .catch(() => {
+              this.loading = false
+            })
+
+
+        } else {
+          console.log('登录失败')
+          return false
+        }
+      })
     },
     captchaVerify(e) {
       e.preventDefault()

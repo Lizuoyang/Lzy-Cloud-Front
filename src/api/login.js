@@ -10,6 +10,7 @@ const userApi = {
   CaptchaType: '/lzy-oauth/captcha/type',
   // 生成图片验证
   ImageCaptcha: '/lzy-oauth/captcha/image',
+  // 获取用户信息
   UserInfo: '/lzy-system/account/user/info'
 }
 

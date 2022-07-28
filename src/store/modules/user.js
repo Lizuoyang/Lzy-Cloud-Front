@@ -1,5 +1,5 @@
 import { login, logout, getInfo} from '@/api/login'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getToken, setToken, setRefreshToken, getRefreshToken, removeToken } from '@/utils/auth'
 import {serialize} from '@/utils/util'
 import { resetRouter } from '@/router'
 
@@ -21,24 +21,38 @@ const mutations = {
   SET_TOKEN: (state, token) => {
     state.token = token
   },
+  SET_REFRESH_TOKEN: (state, refreshToken) => {
+    state.refreshToken = refreshToken
+  },
+  SET_INTRODUCTION: (state, introduction) => {
+    state.introduction = introduction
+  },
   SET_NAME: (state, name) => {
     state.name = name
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
+  },
+  SET_ROLES: (state, roles) => {
+    state.roles = roles
+  },
+  SET_PERMISSIONS: (state, permissions) => {
+    state.permissions = permissions
   }
 }
 
 const actions = {
   // user login
-  login({ commit }, userInfo) {
+  loginByPassword({ commit }, userInfo) {
     return new Promise((resolve, reject) => {
       login(serialize(userInfo)).then(response => {
-        console.log(response)
         const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
-        resolve()
+        console.log(response)
+        commit('SET_TOKEN', data.tokenHead + data.token)
+        commit('SET_REFRESH_TOKEN', data.tokenHead + data.refreshToken)
+        setToken(data.tokenHead + data.token)
+        setRefreshToken(data.tokenHead + data.refreshToken)
+        resolve(data)
       }).catch(error => {
         reject(error)
       })
