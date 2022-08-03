@@ -7,6 +7,7 @@ import { resetRouter } from '@/router'
 const getDefaultState = () => {
   return {
     token: getToken(),
+    refreshToken: getRefreshToken(),
     name: '',
     avatar: ''
   }
@@ -23,9 +24,6 @@ const mutations = {
   },
   SET_REFRESH_TOKEN: (state, refreshToken) => {
     state.refreshToken = refreshToken
-  },
-  SET_INTRODUCTION: (state, introduction) => {
-    state.introduction = introduction
   },
   SET_NAME: (state, name) => {
     state.name = name
@@ -83,10 +81,12 @@ const actions = {
   // user logout
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
-        removeToken() // must remove  token  first
+      logout(serialize({ RefreshToken: state.refreshToken })).then(() => {
+        commit('SET_TOKEN', '')
+        commit('SET_ROLES', [])
+        commit('SET_PERMISSIONS', [])
+        removeToken()
         resetRouter()
-        commit('RESET_STATE')
         resolve()
       }).catch(error => {
         reject(error)
