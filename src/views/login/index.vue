@@ -118,7 +118,8 @@ export default {
       loginForm: {
         username: 'admin',
         password: '123456',
-        captchaCode: ''
+        captchaCode: '',
+        sliding_type: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -130,6 +131,7 @@ export default {
       redirect: undefined,
       grantType: 'password',
       loginCaptchaType: 'sliding',
+      slidingCaptchaType: 'blockPuzzle',
       captchaKey: '',
       captchaImage: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAEALAAAAAABAAEAAAICRAEAOw=='
     }
@@ -187,6 +189,7 @@ export default {
           } else {
             delete this.loginForm.captchaCode
             this.loginForm.captcha_verification = params.captchaVerification
+            this.loginForm.sliding_type = this.slidingCaptchaType
           }
           console.log("params: ", this.loginForm)
           this.$store
