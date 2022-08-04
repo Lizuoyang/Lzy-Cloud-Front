@@ -1,5 +1,5 @@
 <template>
-  <div class="login-container">
+  <div class="login-container" :style="loginBackGround">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
@@ -133,7 +133,12 @@ export default {
       loginCaptchaType: 'sliding',
       slidingCaptchaType: 'blockPuzzle',
       captchaKey: '',
-      captchaImage: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAEALAAAAAABAAEAAAICRAEAOw=='
+      captchaImage: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAEALAAAAAABAAEAAAICRAEAOw==',
+      loginBackGround: {
+        backgroundImage: "url(" + require("@/assets/images/wallhaven-6oqzgq.jpg") + ")",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "100% 100%"
+      },
     }
   },
   components: {Verify},
