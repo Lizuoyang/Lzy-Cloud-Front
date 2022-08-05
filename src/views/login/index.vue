@@ -54,7 +54,7 @@
               type="text"
               tabindex="3"
               auto-complete="on"
-              @keyup.enter.native="handleLogin"
+              @keyup.enter.native="captchaVerify"
             />
           </el-form-item>
         </el-col>
@@ -70,8 +70,7 @@
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="captchaVerify">登录</el-button>
 
       <div class="tips">
-        <span style="margin-right:20px;">username: admin</span>
-        <span> password: any</span>
+
       </div>
 
     </el-form>
@@ -202,8 +201,10 @@ export default {
             .then(() => {
               this.loading = false
               this.$router.push({ path: this.redirect || '/' })
+              this.successRedirect()
             })
-            .catch(() => {
+            .catch(err => {
+              console.log("登录失败：",err)
               this.loading = false
             })
 
@@ -229,6 +230,18 @@ export default {
           }, 600)
         }
       })
+    },
+    successRedirect () {
+      this.$router.push({ path: '/' })
+      // 延迟 1 秒显示欢迎信息
+      setTimeout(() => {
+        this.$notify.success({
+          title: '欢迎',
+          message: `欢迎回来`,
+          offset: 88,
+          duration: 1500
+        })
+      }, 1000)
     },
     showPwd() {
       if (this.passwordType === 'password') {
@@ -326,7 +339,7 @@ $light_gray:#eee;
     width: 520px;
     max-width: 100%;
     padding: 160px 35px 0;
-    margin: 0 auto;
+    margin-left: 50%;
     overflow: hidden;
   }
 
