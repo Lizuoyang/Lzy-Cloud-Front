@@ -42,7 +42,7 @@
         </span>
       </el-form-item>
 
-      <el-row :gutter="5" v-if="loginCaptchaType === 'image'">
+      <el-row :gutter="5" v-if="loginCaptchaType === 'image' && grantType !== 'password'">
         <el-col :span="17">
           <el-form-item prop="captchaCode">
             <span class="svg-container">
@@ -125,7 +125,8 @@
           username: 'admin',
           password: '123456',
           captchaCode: '',
-          sliding_type: ''
+          sliding_type: 'blockPuzzle',
+          grant_type: 'password'
         },
         loginFormErrorMsg: '',
         loginRules: {
@@ -188,21 +189,27 @@
         this.$refs.loginForm.validate(valid => {
           if (valid) {
             this.loading = true
-            this.loginForm.grant_type = 'captcha'
-            // this.loginForm.grant_type = this.grantType
+            // this.loginForm.grant_type = 'captcha'
             this.loginForm.client_id = process.env.VUE_APP_CLIENT_ID
             this.loginForm.client_secret = process.env.VUE_APP_CLIENT_SECRET
 
-            // 判断是图片验证码还是滑动验证码
-            if (this.loginCaptchaType === 'image') {
-              this.loginForm.captcha_type = 'image'
-              this.loginForm.captcha_key = this.captchaKey
-              this.loginForm.captcha_code = this.loginForm.captchaCode
+            if (this.grantType === 'password') {
+              this.loginForm.grant_type = 'password'
             } else {
-              delete this.loginForm.captchaCode
-              this.loginForm.captcha_verification = params.captchaVerification
-              this.loginForm.sliding_type = this.slidingCaptchaType
+              // 判断是图片验证码还是滑动验证码
+              if (this.loginCaptchaType === 'image') {
+                this.loginForm.grant_type = 'captcha'
+                this.loginForm.captcha_type = 'image'
+                this.loginForm.captcha_key = this.captchaKey
+                this.loginForm.captcha_code = this.loginForm.captchaCode
+              } else {
+                delete this.loginForm.captchaCode
+                this.loginForm.captcha_verification = params.captchaVerification
+                this.loginForm.sliding_type = this.slidingCaptchaType
+                this.loginForm.grant_type = 'captcha'
+              }
             }
+
             console.log("params: ", this.loginForm)
             this.$store
               .dispatch('user/loginByPassword', this.loginForm)
@@ -213,8 +220,7 @@
               })
               .catch(err => {
                 console.log("登录失败：", err)
-                this.loading = false
-                this.refreshImageCode()
+                this.requestFailed(err)
               })
 
 
@@ -224,14 +230,34 @@
           }
         })
       },
+      requestFailed(err) {
+        this.loading = false
+
+        if (err && err.code === 427) {
+          // 密码错误次数超过最大限值，请选择验证码模式登录
+          this.grantType = 'captcha'
+
+          if (this.loginCaptchaType === 'sliding') {
+            this.$refs.verify.show()
+          }
+
+          if (this.loginCaptchaType === 'image') {
+            this.refreshImageCode();
+          }
+        }
+      },
       captchaVerify(e) {
         e.preventDefault()
         this.$refs.loginForm.validate((valid) => {
           if (valid) {
-            if (this.loginCaptchaType === 'sliding') {
-              this.$refs.verify.show()
+            if (this.grantType === 'password') {
+              this.verifySuccess();
             } else {
-              this.verifySuccess()
+              if (this.loginCaptchaType === 'sliding') {
+                this.$refs.verify.show();
+              } else {
+                this.verifySuccess();
+              }
             }
           } else {
             setTimeout(() => {
@@ -262,25 +288,6 @@
           this.$refs.password.focus()
         })
       },
-      handleLogin() {
-        this.$refs.loginForm.validate(valid => {
-          if (valid) {
-            this.loading = true
-            this.loginForm.grant_type = this.grantType
-            this.loginForm.client_id = process.env.VUE_APP_CLIENT_ID
-            this.loginForm.client_secret = process.env.VUE_APP_CLIENT_SECRET
-            this.$store.dispatch('user/login', this.loginForm).then(() => {
-              this.$router.push({path: this.redirect || '/'})
-              this.loading = false
-            }).catch(() => {
-              this.loading = false
-            })
-          } else {
-            console.log('error submit!!')
-            return false
-          }
-        })
-      }
     }
   }
 </script>
