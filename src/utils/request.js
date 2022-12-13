@@ -47,7 +47,6 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-
     // if the custom code is not 20000, it is judged as an error.
     if (res.code !== 200) {
       // 102：登录超时
@@ -75,9 +74,9 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log(error) // for debug
+    console.log(JSON.stringify(error.response.data.msg)) // for debug
     Message({
-      message: error,
+      message: error.response.data.msg,
       type: 'error',
       duration: 5 * 1000
     })

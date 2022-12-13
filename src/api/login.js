@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 
 // url 常量
-const userApi = {
+const oauthApi = {
   // 登录并生成token
   Login: '/lzy-oauth/oauth/token',
   // 退出登录
@@ -10,11 +10,14 @@ const userApi = {
   CaptchaType: '/lzy-oauth/oauth/captcha/type',
   // 生成图片验证
   ImageCaptcha: '/lzy-oauth/oauth/captcha/image',
-  // 获取用户信息
+}
+
+const userApi = {
+// 获取用户信息
   UserInfo: '/lzy-system/account/user/info'
 }
 
-export default userApi
+export default {oauthApi,userApi}
 
 /**
  * login func
@@ -29,7 +32,7 @@ export default userApi
  */
 export function login(data) {
   return request({
-    url: userApi.Login,
+    url: oauthApi.Login,
     method: 'post',
     data
   })
@@ -37,7 +40,7 @@ export function login(data) {
 
 export function logout (data) {
   return request({
-    url: userApi.Logout,
+    url: oauthApi.Logout,
     method: 'post',
     data
   })
@@ -52,14 +55,14 @@ export function getInfo () {
 
 export function getCaptchaType () {
   return request({
-    url: userApi.CaptchaType,
+    url: oauthApi.CaptchaType,
     method: 'get'
   })
 }
 
 export function getImageCaptcha () {
   return request({
-    url: userApi.ImageCaptcha,
+    url: oauthApi.ImageCaptcha,
     method: 'get'
   })
 }
