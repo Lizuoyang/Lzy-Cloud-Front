@@ -1,10 +1,13 @@
 <template>
-  <div>11111111111</div>
+  <div>用户管理</div>
 </template>
 
 <script>
   export default {
-    name: "UserTable"
+    name: "UserTable",
+    created() {
+      console.log("UserTable")
+    }
   }
 </script>
 

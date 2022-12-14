@@ -92,6 +92,7 @@ function assembleAsyncRoutes(resources) {
         hidden: !resource.resourceShow
       }
     }
+
     if (resource.children && resource.children.length) {
       route.children = assembleAsyncRoutes(resource.children)
     }
