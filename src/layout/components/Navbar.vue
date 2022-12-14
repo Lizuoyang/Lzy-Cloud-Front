@@ -48,19 +48,6 @@ export default {
     async logout() {
       await this.$store.dispatch('user/logout')
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
-      // this.successRedirect()
-    },
-    successRedirect () {
-      this.$router.push({ path: '/' })
-      // 延迟 1 秒显示欢迎信息
-      setTimeout(() => {
-        this.$notify.success({
-          title: '退出',
-          message: `退出成功`,
-          offset: 88,
-          duration: 1500
-        })
-      }, 1000)
     },
   }
 }

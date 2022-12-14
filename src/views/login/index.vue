@@ -216,7 +216,6 @@
               .then(() => {
                 this.loading = false
                 this.$router.push({path: this.redirect || '/'})
-                this.successRedirect()
               })
               .catch(err => {
                 console.log("登录失败：", err)
@@ -265,18 +264,6 @@
             }, 600)
           }
         })
-      },
-      successRedirect() {
-        this.$router.push({path: '/'})
-        // 延迟 1 秒显示欢迎信息
-        setTimeout(() => {
-          this.$notify.success({
-            title: '欢迎',
-            message: `欢迎回来`,
-            offset: 88,
-            duration: 1500
-          })
-        }, 1000)
       },
       showPwd() {
         if (this.passwordType === 'password') {

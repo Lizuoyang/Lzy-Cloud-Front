@@ -9,7 +9,8 @@ const getDefaultState = () => {
     token: getToken(),
     refreshToken: getRefreshToken(),
     name: '',
-    avatar: ''
+    avatar: '',
+    roles: []
   }
 }
 
@@ -34,9 +35,6 @@ const mutations = {
   SET_ROLES: (state, roles) => {
     state.roles = roles
   },
-  SET_PERMISSIONS: (state, permissions) => {
-    state.permissions = permissions
-  }
 }
 
 const actions = {
@@ -45,7 +43,6 @@ const actions = {
     return new Promise((resolve, reject) => {
       login(serialize(userInfo)).then(response => {
         const { data } = response
-        console.log(response)
         commit('SET_TOKEN', data.tokenHead + data.token)
         commit('SET_REFRESH_TOKEN', data.tokenHead + data.refreshToken)
         setToken(data.tokenHead + data.token)
@@ -67,8 +64,14 @@ const actions = {
           return reject('Verification failed, please Login again.')
         }
 
-        const { account, avatar } = data
-
+        const { roleKeyList, userName,account, avatar } = data
+        // roles must be a non-empty array
+        if (roleKeyList && roleKeyList.length > 0) {
+          commit('SET_ROLES', roleKeyList)
+          // commit('SET_PERMISSIONS', stringResources)
+        } else {
+          reject('getInfo: roles must be a non-null array !')
+        }
         commit('SET_NAME', account)
         commit('SET_AVATAR', avatar)
         resolve(data)
