@@ -63,7 +63,7 @@
       </el-table-column>
       <el-table-column label="昵称" width="" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.account }}</span>
+          <span>{{ scope.row.nickname }}</span>
         </template>
       </el-table-column>
       <el-table-column label="姓名" width="" align="center">
@@ -156,7 +156,6 @@
           <el-radio-group v-model="userForm.status">
             <el-radio :label="1">启用</el-radio>
             <el-radio :label="0">禁用</el-radio>
-            <el-radio :label="2">未激活</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注">
