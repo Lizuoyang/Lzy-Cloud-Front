@@ -143,7 +143,7 @@
         captchaKey: '',
         captchaImage: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAEALAAAAAABAAEAAAICRAEAOw==',
         loginBackGround: {
-          backgroundImage: "url(" + require("@/assets/images/wallhaven-6oqzgq.jpg") + ")",
+          backgroundImage: "url(" + require("@/assets/images/wallhaven-4d85mn.jpg") + ")",
           backgroundRepeat: "no-repeat",
           backgroundSize: "100% 100%"
         },
