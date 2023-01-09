@@ -63,7 +63,7 @@
       </el-table-column>
       <el-table-column label="昵称" width="" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.account }}</span>
+          <span>{{ scope.row.nickname }}</span>
         </template>
       </el-table-column>
       <el-table-column label="姓名" width="" align="center">
@@ -156,7 +156,6 @@
           <el-radio-group v-model="userForm.status">
             <el-radio :label="1">启用</el-radio>
             <el-radio :label="0">禁用</el-radio>
-            <el-radio :label="2">未激活</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注">
@@ -175,7 +174,7 @@
 </template>
 
 <script>
-  import {fetchUserList, fetchRoleList, createUser} from '@/api/system/user'
+  import {fetchUserList, fetchRoleList, createUser, updateUser, deleteUser, updateStatus} from '@/api/system/user'
   import Pagination from '@/components/Pagination'
   import Data from '@/api/pcaa'
   export default {
@@ -361,13 +360,73 @@
         }
       },
       handleUpdate(data) {
+        this.resetUserForm()
+        this.userForm = Object.assign({}, data) // copy obj
 
+        if (!this.userForm.areas || this.userForm.areas.length === 0) {
+          this.userForm.areas = [
+            this.userForm.province,
+            this.userForm.city,
+            this.userForm.area
+          ]
+        }
+
+        if (!(this.userForm.roleIds instanceof Array)) {
+          var roleIds = this.userForm.roleIds.split(',')
+          var arrRoleIds = []
+          for (let roleId of roleIds) {
+            arrRoleIds.push(this.$l.parseInt(roleId))
+          }
+          console.log("arrRoleIds: ",arrRoleIds)
+          this.userForm.roleIds = arrRoleIds
+        }
+
+        this.userForm.gender = this.userForm.gender
+        this.dialogStatus = 'update'
+        this.dialogFormVisible = true
+        this.$nextTick(() => {
+          this.$refs['userForm'].clearValidate()
+        })
       },
-      handleModifyStatus(status) {
-
+      handleModifyStatus(row, status) {
+        this.listLoading = true
+        updateStatus(row.id, status).then(() => {
+          this.listLoading = false
+          row.status = status
+          this.$message({
+            message: '状态修改成功',
+            type: 'success'
+          })
+        })
       },
       handleDelete(data) {
-
+        this.$confirm(
+          '此操作将永久删除该用户：' + data.realName + ', 是否继续?',
+          '提示',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        )
+          .then(() => {
+            this.listLoading = true
+            deleteUser(data.id).then(() => {
+              this.listLoading = false
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              })
+              const index = this.list.indexOf(data)
+              this.list.splice(index, 1)
+            })
+          })
+          .catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
+          })
       },
       createData() {
         this.$refs['userForm'].validate(valid => {
@@ -384,7 +443,33 @@
         })
       },
       updateData() {
-
+        this.$refs['userForm'].validate(valid => {
+          if (valid) {
+            updateUser(this.userForm).then(() => {
+              for (const v of this.list) {
+                if (v.id === this.userForm.id) {
+                  const index = this.list.indexOf(v)
+                  var arrRoleNames = []
+                  for (const role of this.roleList) {
+                    for (var roleId of this.userForm.roleIds) {
+                      if (role.id === roleId) {
+                        arrRoleNames.push(role.roleName)
+                      }
+                    }
+                  }
+                  this.userForm.roleName = arrRoleNames.join()
+                  this.list.splice(index, 1, this.userForm)
+                  break
+                }
+              }
+              this.dialogFormVisible = false
+              this.$message({
+                message: '更新成功',
+                type: 'success'
+              })
+            })
+          }
+        })
       },
       getAreaList() {
         var options = []

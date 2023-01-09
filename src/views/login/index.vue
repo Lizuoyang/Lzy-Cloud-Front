@@ -88,8 +88,8 @@
 </template>
 
 <script>
-  import {validUsername} from '@/utils/validate'
   import {} from '@/api/login'
+  import md5 from 'md5'
   import Verify from '@/components/Verifition'
   import {getCaptchaType, getImageCaptcha} from '@/api/login'
 
@@ -97,7 +97,7 @@
     name: 'Login',
     data() {
       const validateUsername = (rule, value, callback) => {
-        if (!validUsername(value)) {
+        if (value == '') {
           this.loginFormErrorMsg = "请输入账号"
           callback(new Error('请输入账号'))
         } else {
@@ -122,8 +122,8 @@
       }
       return {
         loginForm: {
-          username: 'admin',
-          password: '123456',
+          username: '',
+          password: '',
           captchaCode: '',
           sliding_type: 'blockPuzzle',
           grant_type: 'password'
@@ -209,7 +209,7 @@
                 this.loginForm.grant_type = 'captcha'
               }
             }
-
+            this.loginForm.password = md5(this.loginForm.password)
             console.log("params: ", this.loginForm)
             this.$store
               .dispatch('user/loginByPassword', this.loginForm)
