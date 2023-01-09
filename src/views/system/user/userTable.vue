@@ -174,9 +174,10 @@
 </template>
 
 <script>
-  import {fetchUserList, fetchRoleList, createUser, updateUser, deleteUser, updateStatus} from '@/api/system/user'
+  import {fetchUserList, fetchRoleList, createUser, updateUser, deleteUser, updateStatus, exportUserList} from '@/api/system/user'
   import Pagination from '@/components/Pagination'
   import Data from '@/api/pcaa'
+  import {downloadUrl} from '@/utils'
   export default {
     name: "UserTable",
     components: { Pagination },
@@ -330,10 +331,12 @@
       resetListQuery() {
         this.listQuery = {}
       },
-      handleDownload() {
-        this.$alert('功能正在开发', '提示', {
-          confirmButtonText: '确定',
-        });
+      async handleDownload() {
+        exportUserList(this.listQuery).then(res => {
+          console.log(res)
+          this.downloadUrl(res.data, '用户列表')
+
+        })
       },
       handleCreate() {
         this.resetUserForm()

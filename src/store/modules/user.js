@@ -2,6 +2,9 @@ import { login, logout, getInfo} from '@/api/login'
 import { getToken, setToken, setRefreshToken, getRefreshToken, removeToken } from '@/utils/auth'
 import {serialize} from '@/utils/util'
 import { resetRouter } from '@/router'
+import defaultSettings from '@/settings'
+
+const { userAvator } = defaultSettings
 
 
 const getDefaultState = () => {
@@ -73,7 +76,7 @@ const actions = {
           reject('getInfo: roles must be a non-null array !')
         }
         commit('SET_NAME', account)
-        commit('SET_AVATAR', avatar)
+        commit('SET_AVATAR', avatar == null ? userAvator : avatar)
         resolve(data)
       }).catch(error => {
         reject(error)

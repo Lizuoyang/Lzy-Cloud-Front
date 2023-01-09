@@ -1,5 +1,6 @@
 module.exports = {
 
+  // 网页标题
   title: 'Lzy Cloud',
 
   /**
@@ -32,5 +33,8 @@ module.exports = {
    * The default is only used in the production env
    * If you want to also use it in dev, you can pass ['production', 'development']
    */
-  errorLog: 'production'
+  errorLog: 'production',
+
+  // 用户默认头像
+  userAvator: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
 }

@@ -16,7 +16,9 @@ const userApi = {
   // 获取用户列表
   FetchUserList: '/lzy-service-system/user/list',
   // 获取角色列表
-  FetchRoleList: '/lzy-service-system/role/all'
+  FetchRoleList: '/lzy-service-system/role/all',
+  // 导出用户列表
+  ExportUserList: '/lzy-excel-operate/export/system/user/list'
 
 }
 
@@ -81,5 +83,14 @@ export function updateStatus(userId, status) {
   return request({
     url: userApi.UserStatusUpdate  + userId + '/' + status,
     method: 'post',
+  })
+}
+
+export function exportUserList(data) {
+  return request({
+    url: userApi.ExportUserList,
+    method: 'get',
+    responseType: 'blob',
+    params: data
   })
 }
