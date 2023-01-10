@@ -89,8 +89,8 @@ export function updateStatus(userId, status) {
 export function exportUserList(data) {
   return request({
     url: userApi.ExportUserList,
-    method: 'get',
+    method: 'post',
     responseType: 'blob',
-    params: data
+    data
   })
 }

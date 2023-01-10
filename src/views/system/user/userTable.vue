@@ -311,7 +311,7 @@
       getList() {
         this.listLoading = true
         fetchUserList(this.listQuery).then(response => {
-          console.log('response: ',response)
+          //console.log('response: ',response)
           this.list = response.data
           this.total = response.count
           this.listLoading = false
@@ -334,8 +334,7 @@
       async handleDownload() {
         exportUserList(this.listQuery).then(res => {
           console.log(res)
-          this.downloadUrl(res.data, '用户列表')
-
+          downloadUrl(res, '用户列表')
         })
       },
       handleCreate() {

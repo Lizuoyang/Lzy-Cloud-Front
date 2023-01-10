@@ -46,9 +46,10 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
+    // console.log('response: ',response)
     const res = response.data
     // if the custom code is not 20000, it is judged as an error.
-    if (res.code !== 200) {
+    if (res.code !== 200 && response.status !== 200) {
       // 102：登录超时
       if (res.code === 102) {
         Message({
@@ -68,15 +69,15 @@ service.interceptors.response.use(
           duration: 5 * 1000
         })
       }
-      return Promise.reject(res)
+      return Promise.reject(res).catch(()=>{})
     } else {
       return response.data
     }
   },
   error => {
-    console.log(JSON.stringify(error.response.data.msg)) // for debug
+    console.log(JSON.stringify(error.response)) // for debug
     Message({
-      message: error.response.data.msg,
+      message:  error.response.data.msg || error,
       type: 'error',
       duration: 5 * 1000
     })

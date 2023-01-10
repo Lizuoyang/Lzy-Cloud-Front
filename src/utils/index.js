@@ -118,7 +118,7 @@ export function param2Obj(url) {
 
 // 使用iframe框架下载文件 -兼容性考虑
 export function downloadUrl(res, name) {
-  const blob = new Blob([res], { type: 'application/xlsx' })
+  const blob = new Blob([res], { type: 'application/octet-stream' })
   // for IE
   if (window.navigator && window.navigator.msSaveOrOpenBlob) {
     const fileName = name + '.xlsx'
