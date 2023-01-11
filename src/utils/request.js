@@ -62,6 +62,11 @@ service.interceptors.response.use(
           cancelButtonText: '取消',
           type: 'warning'
         })
+      } else if (res.code === 503) { // 503：服务下线
+        MessageBox.confirm('系统升级中，请稍后再试', '系统升级', {
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
       } else {
         Message({
           message: res.msg,

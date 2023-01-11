@@ -15,8 +15,6 @@ const userApi = {
   UserDelete: '/lzy-service-system/user/delete/',
   // 获取用户列表
   FetchUserList: '/lzy-service-system/user/list',
-  // 获取角色列表
-  FetchRoleList: '/lzy-service-system/role/all',
   // 导出用户列表
   ExportUserList: '/lzy-excel-operate/export/system/user/list'
 
@@ -43,14 +41,6 @@ export function updateUserInfo(data) {
 export function fetchUserList(query) {
   return request({
     url: userApi.FetchUserList,
-    method: 'get',
-    params: query
-  })
-}
-
-export function fetchRoleList(query) {
-  return request({
-    url: userApi.FetchRoleList,
     method: 'get',
     params: query
   })

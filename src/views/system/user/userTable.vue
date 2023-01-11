@@ -175,6 +175,7 @@
 
 <script>
   import {fetchUserList, fetchRoleList, createUser, updateUser, deleteUser, updateStatus, exportUserList} from '@/api/system/user'
+  import {fetchRoleAll} from '@/api/system/role'
   import Pagination from '@/components/Pagination'
   import Data from '@/api/pcaa'
   import {downloadUrl} from '@/utils'
@@ -319,7 +320,7 @@
       },
       getRoleList() {
         this.listLoading = true
-        fetchRoleList().then(response => {
+        fetchRoleAll().then(response => {
           this.roleList = response.data
           this.listLoading = false
         })
