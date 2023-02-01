@@ -122,8 +122,8 @@
       }
       return {
         loginForm: {
-          username: '',
-          password: '',
+          username: 'lizuoyang',
+          password: '123456',
           captchaCode: '',
           sliding_type: 'blockPuzzle',
           grant_type: 'password'
@@ -231,7 +231,7 @@
       },
       requestFailed(err) {
         this.loading = false
-
+        console.log("requestFailed: ",err)
         if (err && err.code === 427) {
           // 密码错误次数超过最大限值，请选择验证码模式登录
           this.grantType = 'captcha'

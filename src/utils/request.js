@@ -49,7 +49,8 @@ service.interceptors.response.use(
     // console.log('response: ',response)
     const res = response.data
     // if the custom code is not 20000, it is judged as an error.
-    if (res.code !== 200 && response.status !== 200) {
+    if (res.code != null && res.code !== 200) {
+      console.log("response interceptors: ",res)
       // 102：登录超时
       if (res.code === 102) {
         Message({
@@ -74,8 +75,9 @@ service.interceptors.response.use(
           duration: 5 * 1000
         })
       }
-      return Promise.reject(res).catch(()=>{})
+      return Promise.reject(res)
     } else {
+      // 请求成功并且状态码等于200，正常放行
       return response.data
     }
   },

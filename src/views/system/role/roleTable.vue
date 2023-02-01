@@ -90,12 +90,10 @@
       <el-table-column label="操作" align="center" width="300" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="text" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
-          <el-button v-if="scope.row.roleStatus!='1'" size="mini" type="text" @click="handleModifyStatus(scope.row,'1')">启用
-          </el-button>
-          <el-button v-if="scope.row.roleStatus!='0' && scope.row.status!='2'" type="text" size="mini" @click="handleModifyStatus(scope.row,'0')">禁用
-          </el-button>
-          <el-button size="mini" type="text" @click="handleDelete(scope.row)">删除
-          </el-button>
+          <el-button type="text" size="mini" @click="handleUpdateResource(scope.row)">权限</el-button>
+          <el-button v-if="scope.row.roleStatus!='1'" size="mini" type="text" @click="handleModifyStatus(scope.row,'1')">启用</el-button>
+          <el-button v-if="scope.row.roleStatus!='0' && scope.row.status!='2'" type="text" size="mini" @click="handleModifyStatus(scope.row,'0')">禁用</el-button>
+          <el-button size="mini" type="text" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -325,6 +323,9 @@
           })
         })
       },
+      handleUpdateResource(row) {
+
+      }
     }
   }
 </script>

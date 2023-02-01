@@ -334,7 +334,6 @@
       },
       async handleDownload() {
         exportUserList(this.listQuery).then(res => {
-          console.log(res)
           downloadUrl(res, '用户列表')
         })
       },
