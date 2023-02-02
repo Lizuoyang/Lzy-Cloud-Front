@@ -7,17 +7,17 @@
           <el-row>
             <el-col :span="4" class="line">
               <el-form-item label="姓名:" prop="realName">
-                <el-input v-model="listQuery.realName" placeholder="请输入用户姓名" style="width: 180px;" class="filter-item" maxlength="32" @keyup.enter.native="handleFilter" />
+                <el-input v-model="listQuery.realName" clearable placeholder="请输入用户姓名" style="width: 180px;" class="filter-item" maxlength="32" @keyup.enter.native="handleFilter" />
               </el-form-item>
             </el-col>
             <el-col :span="4" class="line">
               <el-form-item label="手机号码:" prop="mobile">
-                <el-input v-model="listQuery.mobile" placeholder="请输入手机号码" style="width: 180px;" class="filter-item" maxlength="11" @keyup.enter.native="handleFilter" />
+                <el-input v-model="listQuery.mobile" clearable placeholder="请输入手机号码" style="width: 180px;" class="filter-item" maxlength="11" @keyup.enter.native="handleFilter" />
               </el-form-item>
             </el-col>
             <el-col :span="4" class="line">
               <el-form-item label="邮箱:" prop="email">
-                <el-input v-model="listQuery.email" placeholder="请输入邮箱地址" style="width: 180px;" class="filter-item" maxlength="100" @keyup.enter.native="handleFilter" />
+                <el-input v-model="listQuery.email" clearable placeholder="请输入邮箱地址" style="width: 180px;" class="filter-item" maxlength="100" @keyup.enter.native="handleFilter" />
               </el-form-item>
             </el-col>
             <el-col :span="4" class="line">

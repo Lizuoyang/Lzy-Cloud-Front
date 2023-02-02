@@ -7,22 +7,22 @@
           <el-row>
             <el-col :span="4" class="line">
               <el-form-item label="ID:" prop="id">
-                <el-input v-model="listQuery.id" placeholder="请输入角色ID" style="width: 150px;" class="filter-item" maxlength="32" @keyup.enter.native="handleFilter" />
+                <el-input v-model="listQuery.id" clearable placeholder="请输入角色ID" style="width: 150px;" class="filter-item" maxlength="32" @keyup.enter.native="handleFilter" />
               </el-form-item>
             </el-col>
             <el-col :span="4" class="line">
               <el-form-item label="角色名称:" prop="roleName">
-                <el-input v-model="listQuery.roleName" placeholder="请输入角色名称" style="width: 150px;" class="filter-item" maxlength="32" @keyup.enter.native="handleFilter" />
+                <el-input v-model="listQuery.roleName" placeholder="请输入角色名称" clearable style="width: 150px;" class="filter-item" maxlength="32" @keyup.enter.native="handleFilter" />
               </el-form-item>
             </el-col>
             <el-col :span="4" class="line">
               <el-form-item label="角色标识:" prop="roleKey">
-                <el-input v-model="listQuery.roleKey" placeholder="请输入角色标识" style="width: 150px;" class="filter-item" maxlength="32" @keyup.enter.native="handleFilter" />
+                <el-input v-model="listQuery.roleKey" placeholder="请输入角色标识" clearable style="width: 150px;" class="filter-item" maxlength="32" @keyup.enter.native="handleFilter" />
               </el-form-item>
             </el-col>
             <el-col :span="4" class="line">
               <el-form-item label="角色状态:" prop="roleStatus">
-                <el-select v-model="listQuery.roleStatus" placeholder="请选择角色状态" clearable style="width: 150px" class="filter-item">
+                <el-select v-model="listQuery.roleStatus" placeholder="请选择角色状态" clearable clearable style="width: 150px" class="filter-item">
                   <el-option v-for="item in statusOption" :key="item.key" :label="item.label" :value="item.key" />
                 </el-select>
               </el-form-item>
