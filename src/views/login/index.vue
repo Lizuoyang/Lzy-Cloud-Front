@@ -1,82 +1,64 @@
 <template>
-  <div class="login-container" :style="loginBackGround">
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on"
-             label-position="left">
-
-      <div class="title-container">
-        <h3 class="title">LZY CLOUD</h3>
+  <div class="login" :style="loginBackGround">
+    <div class="login-box">
+      <div class="top">
+        <div class="logo">
+          <img src="~@/assets/images/login-logo.png" alt="" width="200">
+        </div>
       </div>
-
-      <el-form-item prop="username">
-        <span class="svg-container">
-          <svg-icon icon-class="user"/>
-        </span>
-        <el-input
-          ref="username"
-          v-model="loginForm.username"
-          placeholder="用户名"
-          name="username"
-          type="text"
-          tabindex="1"
-          auto-complete="on"
-        />
-      </el-form-item>
-
-      <el-form-item prop="password">
-        <span class="svg-container">
-          <svg-icon icon-class="password"/>
-        </span>
-        <el-input
-          :key="passwordType"
-          ref="password"
-          v-model="loginForm.password"
-          :type="passwordType"
-          placeholder="密码"
-          name="password"
-          tabindex="2"
-          auto-complete="on"
-          @keyup.enter.native="captchaVerify"
-        />
-        <span class="show-pwd" @click="showPwd">
-          <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"/>
-        </span>
-      </el-form-item>
-
-      <el-row :gutter="5" v-if="loginCaptchaType === 'image' && grantType !== 'password'">
-        <el-col :span="17">
-          <el-form-item prop="captchaCode">
-            <span class="svg-container">
-              <svg-icon icon-class="captcha-code"/>
-            </span>
-            <el-input
-              v-model="loginForm.captchaCode"
-              placeholder="验证码"
-              name="captchaCode"
-              type="text"
-              tabindex="3"
-              auto-complete="on"
-              @keyup.enter.native="captchaVerify"
-            />
+      <div class="mid">
+        <el-form :model="loginForm"
+                 :rules="loginRules"
+                 ref="loginForm"
+                 @keyup.enter.native="captchaVerify"
+                 status-icon>
+          <el-form-item prop="username">
+            <el-input class="info"
+                      v-model="loginForm.username"
+                      placeholder="帐号"></el-input>
           </el-form-item>
-        </el-col>
-        <el-col :span="7">
-          <img
-            :src="captchaImage"
-            class="v-code-img"
-            @click="refreshImageCode"
-          >
-        </el-col>
-      </el-row>
-
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;"
-                 @click.native.prevent="captchaVerify">登录
-      </el-button>
-
-      <div class="tips">
-
+          <el-form-item prop="password">
+            <el-input class="info"
+                      v-model="loginForm.password"
+                      :type="passwordType"
+                      @keyup.enter.native="captchaVerify"
+                      placeholder="密码">
+              <template slot="append">
+                <span class="show-pwd" @click="showPwd">
+                  <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"/>
+                </span>
+              </template>
+            </el-input>
+          </el-form-item>
+          <el-form-item prop="captcha">
+            <el-row :gutter="20" v-if="loginCaptchaType === 'image' && grantType !== 'password'">
+              <el-col :span="14">
+                <el-input v-model="loginForm.captchaCode"
+                          @keyup.enter.native="captchaVerify"
+                          placeholder="验证码">
+                </el-input>
+              </el-col>
+              <el-col :span="10"
+                      class="login-captcha">
+                <img
+                  :src="captchaImage"
+                  class="v-code-img"
+                  @click="refreshImageCode"
+                >
+              </el-col>
+            </el-row>
+          </el-form-item>
+          <el-form-item>
+            <div class="item-btn">
+              <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;"
+                         @click.native.prevent="captchaVerify">登录</el-button>
+            </div>
+          </el-form-item>
+        </el-form>
       </div>
 
-    </el-form>
+      <div class="bottom">Copyright © 2023 仅供李佐洋个人学习使用</div>
+    </div>
     <Verify
       ref="verify"
       :mode="'pop'"
@@ -88,17 +70,18 @@
 </template>
 
 <script>
-  import {} from '@/api/login'
   import md5 from 'md5'
   import Verify from '@/components/Verifition'
-  import {getCaptchaType, getImageCaptcha} from '@/api/login'
+  import { getCaptchaType, getImageCaptcha } from '@/api/login'
 
   export default {
-    name: 'Login',
+    components: {
+      Verify
+    },
     data() {
       const validateUsername = (rule, value, callback) => {
         if (value == '') {
-          this.loginFormErrorMsg = "请输入账号"
+          this.loginFormErrorMsg = '请输入账号'
           callback(new Error('请输入账号'))
         } else {
           callback()
@@ -106,7 +89,7 @@
       }
       const validatePassword = (rule, value, callback) => {
         if (value.length < 6) {
-          this.loginFormErrorMsg = "请输入不小于6位的密码"
+          this.loginFormErrorMsg = '请输入不小于6位的密码'
           callback(new Error('请输入不小于6位的密码'))
         } else {
           callback()
@@ -114,7 +97,7 @@
       }
       const validateVCode = (rule, value, callback) => {
         if (value.length < 5) {
-          this.loginFormErrorMsg = "请输入图片验证码"
+          this.loginFormErrorMsg = '请输入图片验证码'
           callback(new Error('请输入图片验证码'))
         } else {
           callback()
@@ -130,9 +113,9 @@
         },
         loginFormErrorMsg: '',
         loginRules: {
-          username: [{required: true, trigger: 'blur', validator: validateUsername}],
-          password: [{required: true, trigger: 'blur', validator: validatePassword}],
-          captchaCode: [{required: true, trigger: 'blur', validator: validateVCode}],
+          username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+          password: [{ required: true, trigger: 'blur', validator: validatePassword }],
+          captchaCode: [{ required: true, trigger: 'blur', validator: validateVCode }]
         },
         loading: false,
         passwordType: 'password',
@@ -143,20 +126,19 @@
         captchaKey: '',
         captchaImage: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAEALAAAAAABAAEAAAICRAEAOw==',
         loginBackGround: {
-          backgroundImage: "url(" + require("@/assets/images/wallhaven-4d85mn.jpg") + ")",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "100% 100%"
-        },
+          backgroundImage: 'url(' + require('@/assets/images/login-bg.png') + ')',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: '100% 100%'
+        }
       }
     },
-    components: {Verify},
     created() {
       this.queryCaptchaType()
       // window.addEventListener('storage', this.afterQRScan)
     },
     watch: {
       $route: {
-        handler: function (route) {
+        handler: function(route) {
           this.redirect = route.query && route.query.redirect
         },
         immediate: true
@@ -174,6 +156,7 @@
         getCaptchaType().then(res => {
           this.loginCaptchaType = res.data
           if (this.loginCaptchaType === 'image') {
+            this.grantType = 'captcha'
             this.refreshImageCode()
           }
         })
@@ -210,18 +193,17 @@
               }
             }
             this.loginForm.password = md5(this.loginForm.password)
-            console.log("params: ", this.loginForm)
+            console.log('params: ', this.loginForm)
             this.$store
               .dispatch('user/loginByPassword', this.loginForm)
               .then(() => {
                 this.loading = false
-                this.$router.push({path: this.redirect || '/'})
+                this.$router.push({ path: this.redirect || '/' })
               })
               .catch(err => {
-                console.log("登录失败：", err)
+                console.log('登录失败：', err)
                 this.requestFailed(err)
               })
-
 
           } else {
             console.log('登录失败')
@@ -231,7 +213,7 @@
       },
       requestFailed(err) {
         this.loading = false
-        console.log("requestFailed: ",err)
+        console.log('requestFailed: ', err)
         if (err && err.code === 427) {
           // 密码错误次数超过最大限值，请选择验证码模式登录
           this.grantType = 'captcha'
@@ -241,21 +223,22 @@
           }
 
           if (this.loginCaptchaType === 'image') {
-            this.refreshImageCode();
+            this.refreshImageCode()
           }
         }
       },
       captchaVerify(e) {
         e.preventDefault()
+        // console.log("this.loginCaptchaType:", this.loginCaptchaType)
         this.$refs.loginForm.validate((valid) => {
           if (valid) {
             if (this.grantType === 'password') {
-              this.verifySuccess();
+              this.verifySuccess()
             } else {
               if (this.loginCaptchaType === 'sliding') {
-                this.$refs.verify.show();
+                this.$refs.verify.show()
               } else {
-                this.verifySuccess();
+                this.verifySuccess()
               }
             }
           } else {
@@ -274,129 +257,83 @@
         this.$nextTick(() => {
           this.$refs.password.focus()
         })
-      },
+      }
     }
   }
 </script>
 
 <style lang="scss">
-  /* 修复input 背景不协调 和光标变色 */
-  /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
-
-  $bg: #283443;
-  $light_gray: #fff;
-  $cursor: #fff;
-
-  @supports (-webkit-mask: none) and (not (cater-color: $cursor)) {
-    .login-container .el-input input {
-      color: $cursor;
-    }
-  }
-
-  /* reset element-ui css */
-  .login-container {
-    .el-input {
-      display: inline-block;
-      height: 47px;
-      width: 85%;
-
-      input {
-        background: transparent;
-        border: 0px;
-        -webkit-appearance: none;
-        border-radius: 0px;
-        padding: 12px 5px 12px 15px;
-        color: $light_gray;
-        height: 47px;
-        caret-color: $cursor;
-
-        &:-webkit-autofill {
-          box-shadow: 0 0 0px 1000px $bg inset !important;
-          -webkit-text-fill-color: $cursor !important;
-        }
-      }
-    }
-
-    .el-form-item {
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(0, 0, 0, 0.1);
-      border-radius: 5px;
-      color: #454545;
-    }
-  }
-</style>
-
-<style lang="scss" scoped>
-  $bg: #2d3a4b;
-  $dark_gray: #889aa4;
-  $light_gray: #eee;
-
-  .login-container {
-    min-height: 100%;
+  .login {
     width: 100%;
-    background-color: $bg;
-    overflow: hidden;
+    height: 100%;
+    background-size: cover;
+    position: fixed;
+  }
 
-    .login-form {
-      position: relative;
-      width: 520px;
-      max-width: 100%;
-      padding: 160px 35px 0;
-      margin-left: 50%;
-      overflow: hidden;
-    }
+  .login .login-box {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 100%;
+    padding-top: 10%;
+  }
 
-    .tips {
-      font-size: 14px;
-      color: #fff;
-      margin-bottom: 10px;
+  .login .login-box .top {
+    margin-bottom: 30px;
+    text-align: center;
+  }
 
-      span {
-        &:first-of-type {
-          margin-right: 16px;
-        }
-      }
-    }
+  .login .login-box .top .logo {
+    font-size: 0;
+    max-width: 50%;
+    margin: 0 auto;
+  }
 
-    .svg-container {
-      padding: 6px 5px 6px 15px;
-      color: $dark_gray;
-      vertical-align: middle;
-      width: 30px;
-      display: inline-block;
-    }
+  .login .login-box .top .company {
+    font-size: 16px;
+    margin-top: 10px;
+  }
 
-    .title-container {
-      position: relative;
+  .login .login-box .mid {
+    font-size: 14px;
+  }
 
-      .title {
-        font-size: 26px;
-        color: $light_gray;
-        margin: 0px auto 40px auto;
-        text-align: center;
-        font-weight: bold;
-      }
-    }
+  .login .login-box .mid .item-btn {
+    margin-top: 20px;
+  }
 
-    .show-pwd {
-      position: absolute;
-      right: 10px;
-      top: 7px;
-      font-size: 16px;
-      color: $dark_gray;
-      cursor: pointer;
-      user-select: none;
-    }
+  .login .login-box .mid .item-btn input {
+    border: 0;
+    width: 100%;
+    height: 40px;
+    box-shadow: 0;
+    background: #1f87e8;
+    color: #fff;
+    border-radius: 3px;
+  }
 
-    .v-code-img {
-      margin-top: 0.5px;
-      height: 51px;
-      float: right;
-      width: 98%;
-      border-radius: 5px;
-      cursor: pointer;
-      opacity: 0.8;
-      filter: alpha(opacity=60);
-    }
+  .info {
+    width: 410px;
+  }
+
+  .login-captcha {
+    height: 40px;
+  }
+
+  .login .login-box .bottom {
+    position: absolute;
+    bottom: 10%;
+    width: 100%;
+    color: #999;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .title {
+    font-size: 26px;
+    color: black;
+    margin: 0px auto 40px auto;
+    text-align: center;
+    font-weight: bold;
   }
 </style>

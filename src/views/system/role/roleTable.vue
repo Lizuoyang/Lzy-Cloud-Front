@@ -113,8 +113,8 @@
         </el-form-item>
         <el-form-item label="角色状态" prop="roleStatus">
           <el-radio-group v-model="roleForm.roleStatus">
-            <el-radio label="1">启用</el-radio>
-            <el-radio label="0">禁用</el-radio>
+            <el-radio :label="1">启用</el-radio>
+            <el-radio :label="0">禁用</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注信息">
