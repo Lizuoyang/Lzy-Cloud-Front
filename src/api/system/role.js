@@ -5,6 +5,8 @@ const roleApi = {
   FetchRoleList : '/lzy-service-system/role/list',
   // 获取全部角色
   FetchRoleAll: '/lzy-service-system/role/all',
+  //根据角色id查询资源
+  QueryRoleResource: '/lzy-service-system/role/resource/',
   // 新增角色
   RoleCreate: '/lzy-service-system/role/create',
   // 修改角色
@@ -13,6 +15,8 @@ const roleApi = {
   RoleStatusUpdate: '/lzy-service-system/role/status/',
   // 删除角色
   RoleDelete: '/lzy-service-system/role/delete/',
+  // 修改角色的资源列表
+  RoleResourcesUpdate: '/lzy-service-system/role/resource/update',
 }
 
 export default { roleApi }
@@ -60,5 +64,20 @@ export function updateRoleStatus(roleId, status) {
   return request({
     url: roleApi.RoleStatusUpdate + roleId + '/' + status,
     method: 'post'
+  })
+}
+
+export function queryRoleResource(roleId) {
+  return request({
+    url: roleApi.QueryRoleResource + roleId,
+    method: 'get'
+  })
+}
+
+export function updateRoleResources(data) {
+  return request({
+    url: roleApi.RoleResourcesUpdate,
+    method: 'post',
+    data
   })
 }

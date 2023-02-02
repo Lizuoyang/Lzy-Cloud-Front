@@ -32,9 +32,9 @@
             <el-col :span="24">
               <el-form-item style="float:right;">
                 <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter" >查询</el-button>
+                <el-button class="filter-item"  icon="el-icon-refresh" @click="resetListQuery" >重置</el-button>
                 <el-button class="filter-item" style="margin-left: 10px;"  icon="el-icon-edit" @click="handleCreate" >新增</el-button>
                 <el-button :loading="downloadLoading" class="filter-item"  icon="el-icon-download" @click="handleDownload" >导出</el-button>
-                <el-button class="filter-item"  icon="el-icon-refresh" @click="resetListQuery" >重置</el-button>
               </el-form-item>
             </el-col>
           </el-row>

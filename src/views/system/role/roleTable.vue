@@ -32,8 +32,8 @@
             <el-col :span="24">
               <el-form-item style="float:right;">
                 <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter" >查询</el-button>
-                <el-button class="filter-item" style="margin-left: 10px;"  icon="el-icon-edit" @click="handleCreate" >新增</el-button>
                 <el-button class="filter-item"  icon="el-icon-refresh" @click="resetListQuery" >重置</el-button>
+                <el-button class="filter-item" style="margin-left: 10px;"  icon="el-icon-edit" @click="handleCreate" >新增</el-button>
               </el-form-item>
             </el-col>
           </el-row>
@@ -127,11 +127,37 @@
         <el-button v-else type="primary" @click="updateData">确 定</el-button>
       </div>
     </el-dialog>
+
+    <!-- 配置权限菜单 -->
+    <el-dialog :visible.sync="dialogResourceVisible" title="配置资源">
+      <el-input
+        v-model="filterText"
+        placeholder="输入关键字进行过滤"
+      />
+      <el-tree
+        ref="tree"
+        :data="resourceTree"
+        :filter-node-method="filterNode"
+        :default-expanded-keys="resourceTreeExpandedKeys"
+        :default-checked-keys="resourceTreeCheckedKeys"
+        :props="defaultProps"
+        show-checkbox
+        node-key="id"
+        default-expand-all
+        check-strictly
+        style="margin-top: 20px;"
+      />
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogResourceVisible = false">取 消</el-button>
+        <el-button type="primary" @click="updateRoleResource">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-  import {fetchRoleList,createRole,updateRole,deleteRole,updateRoleStatus} from '@/api/system/role'
+  import {fetchRoleList,createRole,updateRole,deleteRole,updateRoleStatus,queryRoleResource,updateRoleResources} from '@/api/system/role'
+  import { fetchResourceTree } from '@/api/system/resource'
   import Pagination from '@/components/Pagination'
   export default {
     name: "RoleTable",
@@ -200,11 +226,34 @@
           ]
         },
         downloadLoading: false,
+        resourceData: {
+          roleId: '',
+          addResources: [],
+          delResources: []
+        },
+        resourceTreeExpandedKeys: [],
+        resourceTreeCheckedKeys: [],
+        resourceTree: [],
+        oldResourceList: [],
+        currentRole: '',
+        treeQuery: {
+          parentId: 0
+        },
+        defaultProps: {
+          children: 'children',
+          label: 'resourceName'
+        },
+        filterText:'',
       }
     },
     created() {
       // 获取角色列表
       this.getList()
+    },
+    watch: {
+      filterText(val) {
+        this.$refs['tree'].filter(val)
+      }
     },
     methods: {
       getList() {
@@ -324,7 +373,93 @@
         })
       },
       handleUpdateResource(row) {
+        this.currentRole = row.id
+        this.resourceTreeExpandedKeys = []
+        this.resourceTreeCheckedKeys = []
+        this.resourceTree = []
+        this.resourceData.addResources = []
+        this.resourceData.delResources = []
+        this.oldResourceList = []
+        this.resetChecked()
+        this.listLoading = true
+        fetchResourceTree(this.treeQuery).then(response => {
+          console.log(response)
+          this.resourceTree = response.data
+          this.dialogResourceVisible = true
+          this.listLoading = false
+          queryRoleResource(row.id).then(response => {
+            if (response.data && response.data.length > 0) {
+              for (let i = 0; i < response.data.length; i++) {
+                this.resourceTreeCheckedKeys[i] = response.data[i].resourceId
+                this.resourceTreeExpandedKeys[i] = response.data[i].resourceId
+                this.oldResourceList[i] = response.data[i].resourceId
+              }
+              this.setCheckedKeys(this.resourceTreeCheckedKeys)
+            }
 
+            this.listLoading = false
+          })
+        })
+      },
+      filterNode(value, data) {
+        if (!value) return true
+        return data.resourceName.indexOf(value) !== -1
+      },
+      resetChecked() {
+        if (this.$refs['tree']) {
+          this.$refs['tree'].setCheckedKeys([])
+        }
+      },
+      setCheckedKeys(keys) {
+        if (this.$refs['tree']) {
+          this.$refs['tree'].setCheckedKeys(keys)
+        }
+      },
+      updateRoleResource() {
+        this.listLoading = true
+        let ids = []
+        let keysChecked = this.$refs['tree'].getCheckedKeys()
+        let cLength = 0
+        if (keysChecked && keysChecked.length > 0) {
+          cLength = keysChecked.length
+          for (let i = 0; i < cLength; i++) {
+            ids[i] = keysChecked[i]
+          }
+        }
+
+        let keysHalf = this.$refs['tree'].getHalfCheckedKeys()
+        if (keysHalf && keysHalf.length > 0) {
+          for (let j = 0; j < keysHalf.length; j++) {
+            ids[cLength + j] = keysHalf[j]
+          }
+        }
+        let that = this
+
+        let addResourceIds = ids.filter(function(v) { return that.oldResourceList.indexOf(v) === -1 })
+
+        let delResourceIds = that.oldResourceList.filter(function(v) { return ids.indexOf(v) === -1 })
+
+        if (addResourceIds && addResourceIds.length > 0) {
+          for (let k = 0; k < addResourceIds.length; k++) {
+            this.resourceData.addResources[k] = { roleId: this.currentRole, resourceId: addResourceIds[k] }
+          }
+        }
+
+        if (delResourceIds && delResourceIds.length > 0) {
+          for (let q = 0; q < delResourceIds.length; q++) {
+            this.resourceData.delResources[q] = { roleId: this.currentRole, resourceId: delResourceIds[q] }
+          }
+        }
+
+        this.resourceData.roleId = this.currentRole
+        updateRoleResources(this.resourceData).then(response => {
+          this.dialogResourceVisible = false
+          this.listLoading = false
+          this.$message({
+            message: '角色修改成功',
+            type: 'success'
+          })
+        })
       }
     }
   }
