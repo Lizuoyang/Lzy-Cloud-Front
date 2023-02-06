@@ -34,6 +34,7 @@
         </el-form>
       </div>
 
+      <!-- 资源列表 -->
       <el-table ref="resourceTree" :data="list" row-key="id" border>
         <el-table-column label="资源名称" align="center">
           <template slot-scope="scope">
@@ -75,19 +76,86 @@
           <template slot-scope="scope">
             <el-button type="text" size="mini" @click="handleCreate(scope.row)">新增</el-button>
             <el-button type="text" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
-            <el-button v-if="scope.row.roleStatus!='1'" size="mini" type="text" @click="handleModifyStatus(scope.row,'1')">启用</el-button>
-            <el-button v-if="scope.row.roleStatus!='0' && scope.row.status!='2'" type="text" size="mini" @click="handleModifyStatus(scope.row,'0')">禁用</el-button>
+            <el-button v-if="scope.row.resourceStatus!='1'" size="mini" type="text" @click="handleModifyStatus(scope.row,'1')">启用</el-button>
+            <el-button v-if="scope.row.resourceStatus!='0'" type="text" size="mini" @click="handleModifyStatus(scope.row,'0')">禁用</el-button>
             <el-button size="mini" type="text" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
+
+      <!-- 资源 新增/编辑 -->
+      <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" top="5vh" width="35%">
+        <el-form ref="resourceForm" :model="resourceForm" :rules="rules" label-width="100px" class="resourceForm" style="width: 400px; margin-left:50px;">
+          <el-form-item label="资源名称" prop="resourceName">
+            <el-input v-model.trim="resourceForm.resourceName" placeholder="权限或者菜单的名称" maxlength="32" />
+          </el-form-item>
+          <el-form-item label="资源标识" prop="resourceKey">
+            <el-input v-model.trim="resourceForm.resourceKey" placeholder="系统用来判断权限的唯一key" maxlength="32" />
+          </el-form-item>
+          <el-form-item label="资源类型" prop="resourceType">
+            <el-radio-group v-model="resourceForm.resourceType">
+              <el-radio :label="'1'">模块</el-radio>
+              <el-radio :label="'2'">菜单</el-radio>
+              <el-radio :label="'4'">接口</el-radio>
+              <el-radio :label="'3'">按钮</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="资源图标" prop="resourceIcon">
+            <el-input v-model.trim="resourceForm.resourceIcon" placeholder="菜单的图标，不是菜单可以不填" maxlength="32" />
+          </el-form-item>
+          <el-form-item label="资源path" prop="resourcePath">
+            <el-tooltip class="item" effect="dark" content="1、单页面路由地址 2、外链地址以http://或https://开头" placement="right">
+              <el-input v-model.trim="resourceForm.resourcePath" placeholder="浏览器地址栏显示的url" />
+            </el-tooltip>
+          </el-form-item>
+          <el-form-item label="资源链接" prop="resourceUrl">
+            <el-tooltip class="item" effect="dark" content="1、一级菜单填Layout 2、包含子菜单的二级菜单填nested 3、最后子菜单填写页面对应路径 4、接口填写请求路径" placement="right">
+              <el-input v-model.trim="resourceForm.resourceUrl" placeholder="菜单对应前台页面的路径" />
+            </el-tooltip>
+          </el-form-item>
+          <el-form-item label="资源排序" prop="resourceLevel">
+            <el-input v-model.number="resourceForm.resourceLevel" placeholder="菜单排序" maxlength="32" />
+          </el-form-item>
+          <el-form-item v-show="resourceForm.resourceType === '2'" label="页面名称" prop="resourcePageName">
+            <el-tooltip class="item" effect="dark" content="如果前端页面开启了tagView，一定要跟页面中定义的name值保持名称一致，否则不能keep-alive" placement="right">
+              <el-input v-model.trim="resourceForm.resourcePageName" placeholder="前端页面定义的名称" maxlength="32" />
+            </el-tooltip>
+          </el-form-item>
+          <el-form-item label="是否缓存" prop="resourceCache">
+            <el-radio-group v-model="resourceForm.resourceCache">
+              <el-radio :label="true">是</el-radio>
+              <el-radio :label="false">否</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="是否显示" prop="resourceShow">
+            <el-radio-group v-model="resourceForm.resourceShow">
+              <el-radio :label="true">是</el-radio>
+              <el-radio :label="false">否</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="资源状态" prop="resourceStatus">
+            <el-radio-group v-model="resourceForm.resourceStatus">
+              <el-radio :label="1">启用</el-radio>
+              <el-radio :label="0">禁用</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="备注">
+            <el-input v-model.trim="resourceForm.comments" :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="请输入备注信息" />
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">确 定</el-button>
+          <el-button v-else type="primary" @click="updateData">确 定</el-button>
+        </div>
+      </el-dialog>
 
     </div>
   </div>
 </template>
 
 <script>
-  import { fetchResourceTree } from '@/api/system/resource'
+  import { fetchResourceTree, updateResourceStatus, createResource, checkResourceExist, deleteResource, updateResource } from '@/api/system/resource'
 
   export default {
     name: 'ResourceTable',
@@ -165,7 +233,7 @@
           resourceCache: true,
           resourceShow: true,
           resourcePageName: '',
-          resourceStatus: '1',
+          resourceStatus: 1,
           children: [], // 必须加，否则新增的节点不显示
           comments: ''
         },
@@ -303,20 +371,171 @@
         return haveFlag
       },
       resetListQuery() {
-        this.treeQuery = {}
+        this.treeQuery = {
+          parentId: 0,
+          resourceKey: '',
+          resourceName: ''
+        }
+      },
+      resetResourceForm() {
+        this.resourceForm = {
+          id: '',
+          parentId: 0,
+          resourceName: '',
+          resourceKey: '',
+          resourceType: '1',
+          resourceIcon: '',
+          resourcePath: '',
+          resourceUrl: '',
+          resourceLevel: '',
+          resourceCache: true,
+          resourceShow: true,
+          resourcePageName: '',
+          resourceStatus: 1,
+          children: [], // 必须加，否则新增的节点不显示
+          comments: ''
+        }
       },
       handleCreate(row) {
-
+        this.resetResourceForm()
+        if (row) {
+          this.rootFlag = false
+          this.resourceForm.parentId = row.id
+        } else {
+          this.rootFlag = true
+        }
+        this.dialogStatus = 'create'
+        this.dialogFormVisible = true
+        this.$nextTick(() => {
+          this.$refs['resourceForm'].clearValidate()
+        })
       },
       handleUpdate(row) {
-
+        this.resourceForm = Object.assign({}, row) // copy obj
+        // JSON不接受循环对象——引用它们自己的对象
+        delete this.resourceForm.parent
+        delete this.resourceForm.children
+        this.dialogStatus = 'update'
+        this.dialogFormVisible = true
+        this.$nextTick(() => {
+          this.$refs['resourceForm'].clearValidate()
+        })
       },
       handleModifyStatus(row, status) {
-
+        this.listLoading = true
+        updateResourceStatus(row.id, status).then(() => {
+          this.listLoading = false
+          row.resourceStatus = status
+          this.$message({
+            message: '状态修改成功',
+            type: 'success'
+          })
+        })
       },
       handleDelete(row) {
-
-      }
+        this.$confirm(
+          '此操作将永久删除该资源：' + row.resourceName + ', 是否继续?',
+          '提示',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        )
+          .then(() => {
+            this.listLoading = true
+            deleteResource(row.id).then(() => {
+              this.listLoading = false
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              })
+              this.deleteDataCallBack(row.id, this.list)
+              this.deleteDataCallBack(row.id, this.baseList)
+            })
+          })
+          .catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
+          })
+      },
+      deleteDataCallBack(id, dataList) {
+        for (const v of dataList) {
+          if (v.id === id) {
+            const index = dataList.indexOf(v)
+            dataList.splice(index, 1)
+            break
+          }
+          if (v.children && v.children.length > 0) {
+            this.deleteDataCallBack(id, v.children)
+          }
+        }
+      },
+      createData() {
+        this.$refs['resourceForm'].validate(valid => {
+          if (valid) {
+            createResource(this.resourceForm).then(response => {
+              this.dialogFormVisible = false
+              this.resourceForm.id = response.data.id
+              if (this.rootFlag) {
+                this.resourceForm['children'] = []
+                this.list.push(this.resourceForm)
+                this.baseList.push(JSON.parse(JSON.stringify(this.resourceForm)))
+              } else {
+                this.createDataCallBack(this.list)
+                this.createDataCallBack(this.baseList)
+              }
+              this.$message({
+                message: '创建成功',
+                type: 'success'
+              })
+            })
+          }
+        })
+      },
+      createDataCallBack(dataList) {
+        for (const v of dataList) {
+          if (v.id === this.resourceForm.parentId) {
+            if (!v.children) {
+              v['children'] = []
+            }
+            this.resourceForm['children'] = []
+            v.children.push(JSON.parse(JSON.stringify(this.resourceForm)))
+            break
+          }
+          if (v.children && v.children.length > 0) {
+            this.createDataCallBack(v.children)
+          }
+        }
+      },
+      updateData() {
+        this.$refs['resourceForm'].validate(valid => {
+          if (valid) {
+            updateResource(this.resourceForm).then(() => {
+              this.dialogFormVisible = false
+              this.$message({
+                message: '更新成功',
+                type: 'success'
+              })
+              this.updateDataCallBack(this.list)
+              this.updateDataCallBack(this.baseList)
+            })
+          }
+        })
+      },
+      updateDataCallBack(dataList) {
+        for (const v of dataList) {
+          if (v.id === this.resourceForm.id) {
+            Object.assign(v, JSON.parse(JSON.stringify(this.resourceForm)))
+            break
+          }
+          if (v.children && v.children.length > 0) {
+            this.updateDataCallBack(v.children)
+          }
+        }
+      },
     }
   }
 </script>
